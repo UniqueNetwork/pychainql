@@ -7,6 +7,30 @@ mod chainql {
     use super::*;
 
     #[pymodule]
+    mod ethereum {
+        use super::*;
+        use chainql_core::{
+            ethereum::{builtin_eth_encode, eth_cksum_address, eth_cksum_address_from_ecdsa},
+            hex::Hex,
+        };
+
+        #[pyfunction]
+        fn cksum_address(address: [u8; 20]) -> String {
+            eth_cksum_address(address)
+        }
+
+        #[pyfunction]
+        fn cksum_address_from_ecdsa(pubkey: [u8; 33]) -> PyResult<String> {
+            eth_cksum_address_from_ecdsa(pubkey).map_err(to_value_error)
+        }
+
+        #[pyfunction]
+        fn encode(address: Vec<u8>) -> PyResult<String> {
+            builtin_eth_encode(Hex(address)).map_err(to_value_error)
+        }
+    }
+
+    #[pymodule]
     mod hex {
         use super::*;
         use chainql_core::hex;
