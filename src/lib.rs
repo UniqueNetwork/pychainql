@@ -1,10 +1,22 @@
 mod address;
+mod ss58;
+mod ss58_registry;
 
 use pyo3::{exceptions::PyValueError, prelude::*};
 
 #[pymodule]
 mod chainql {
     use super::*;
+
+    #[pymodule]
+    mod address {
+        #[pymodule_export]
+        use crate::address::{address_seed, public_bytes_seed, SignatureSchema};
+        #[pymodule_export]
+        use crate::ss58::Ss58AddressFormat;
+        #[pymodule_export]
+        use crate::ss58_registry::Ss58AddressFormatRegistry;
+    }
 
     #[pymodule]
     mod ethereum {

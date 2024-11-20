@@ -469,6 +469,7 @@ version = "0.1.0"
 dependencies = [
  "chainql-core",
  "pyo3",
+ "ss58-registry",
 ]
 
 [[package]]

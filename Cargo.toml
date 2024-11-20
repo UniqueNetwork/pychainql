@@ -10,3 +10,4 @@ crate-type = ["cdylib"]
 [dependencies]
 chainql-core = "0.4.7"
 pyo3 = { version = "0.23.1", features = ["extension-module"] }
+ss58-registry = "1.51.0"
