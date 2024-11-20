@@ -8,6 +8,6 @@ name = "chainql"
 crate-type = ["cdylib"]
 
 [dependencies]
-chainql-core = "0.4.7"
+chainql-core = { path = "../chainql/crates/chainql-core" }
 pyo3 = { version = "0.23.1", features = ["extension-module"] }
 ss58-registry = "1.51.0"

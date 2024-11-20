@@ -13,9 +13,9 @@ mod chainql {
         #[pymodule_export]
         use crate::address::{address_seed, public_bytes_seed, SignatureSchema};
         #[pymodule_export]
-        use crate::ss58::Ss58AddressFormat;
+        use crate::ss58::{ss58_decode, ss58_encode, Ss58AddressFormat};
         #[pymodule_export]
-        use crate::ss58_registry::Ss58AddressFormatRegistry;
+        use crate::ss58_registry::Ss58AccountFormat;
     }
 
     #[pymodule]

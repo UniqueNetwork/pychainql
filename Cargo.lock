@@ -475,8 +475,6 @@ dependencies = [
 [[package]]
 name = "chainql-core"
 version = "0.4.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdb8eb405226648da90affd2116297ce5156ad019d8ac4339a31bdde0e69a326"
 dependencies = [
  "chainql-frame-metadata",
  "cumulus-primitives-proof-size-hostfunction",
@@ -507,8 +505,6 @@ dependencies = [
 [[package]]
 name = "chainql-frame-metadata"
 version = "0.4.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab2fea832fea921e25d431b8b9afeefaf199b5c3d690194e398240f6c0374f43"
 dependencies = [
  "cfg-if",
  "parity-scale-codec",
