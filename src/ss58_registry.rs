@@ -5,7 +5,7 @@ use pyo3::prelude::*;
 use crate::{ss58::Ss58AddressFormat, to_value_error};
 use ss58_registry as ss58;
 
-/// A known address (sub)format/network ID for SS58.
+/// A known address (sub)format/network ID for SS58
 #[pyclass(eq, eq_int, str)]
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 #[repr(u16)]

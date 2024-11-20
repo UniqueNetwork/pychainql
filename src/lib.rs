@@ -26,19 +26,22 @@ mod chainql {
             hex::Hex,
         };
 
+        /// TODO
+        #[pyfunction]
+        fn encode(address: Vec<u8>) -> PyResult<String> {
+            builtin_eth_encode(Hex(address)).map_err(to_value_error)
+        }
+
+        /// TODO
         #[pyfunction]
         fn cksum_address(address: [u8; 20]) -> String {
             eth_cksum_address(address)
         }
 
+        /// TODO
         #[pyfunction]
         fn cksum_address_from_ecdsa(pubkey: [u8; 33]) -> PyResult<String> {
             eth_cksum_address_from_ecdsa(pubkey).map_err(to_value_error)
-        }
-
-        #[pyfunction]
-        fn encode(address: Vec<u8>) -> PyResult<String> {
-            builtin_eth_encode(Hex(address)).map_err(to_value_error)
         }
     }
 
@@ -47,13 +50,13 @@ mod chainql {
         use super::*;
         use chainql_core::hex;
 
-        /// Convert a hex string to a vector of bytes.
+        /// Convert a hex string to a vector of bytes
         #[pyfunction]
         fn from_hex(data: &str) -> PyResult<Vec<u8>> {
             hex::from_hex(data).map_err(to_value_error)
         }
 
-        /// Convert an array of bytes to a hex string.
+        /// Convert an array of bytes to a hex string
         #[pyfunction]
         fn to_hex(data: &[u8]) -> String {
             hex::to_hex(data)

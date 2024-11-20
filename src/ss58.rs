@@ -60,7 +60,7 @@ impl std::fmt::Display for Ss58AddressFormat {
     }
 }
 
-/// Encode bytes to SS58 string.
+/// Encode bytes to SS58 string
 #[pyfunction]
 #[pyo3(signature = (raw, format=None))]
 pub(crate) fn ss58_encode(raw: Vec<u8>, format: Option<Ss58AddressFormat>) -> PyResult<String> {
@@ -72,7 +72,7 @@ pub(crate) fn ss58_encode(raw: Vec<u8>, format: Option<Ss58AddressFormat>) -> Py
         .map_err(to_value_error)
 }
 
-/// Parse SS58 address to bytes.
+/// Parse SS58 address to bytes
 #[pyfunction]
 pub(crate) fn ss58_decode(ss58: &str) -> PyResult<Vec<u8>> {
     chainql_core::builtin_ss58(ss58.into())
