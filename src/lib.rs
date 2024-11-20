@@ -1,4 +1,5 @@
 mod address;
+mod chain;
 mod ss58;
 mod ss58_registry;
 
@@ -7,6 +8,12 @@ use pyo3::{exceptions::PyValueError, prelude::*};
 #[pymodule]
 mod chainql {
     use super::*;
+
+    #[pymodule]
+    mod chain {
+        #[pymodule_export]
+        use crate::chain::{chain, ChainOpts};
+    }
 
     #[pymodule]
     mod address {
