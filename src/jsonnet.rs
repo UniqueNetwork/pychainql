@@ -1,9 +1,9 @@
 use crate::{jsonnet_tokio::execute_jsonnet, utils::jsonnet_error};
 use jrsonnet_evaluator as jsonnet;
 use pyo3::{
-    exceptions::{PyKeyError, PyTypeError},
+    exceptions::{PyKeyError, PyRuntimeError, PyTypeError},
     prelude::*,
-    types::{PyBool, PyNone},
+    types::{PyBool, PyDict, PyNone, PyTuple},
 };
 
 /// TODO
@@ -77,4 +77,14 @@ impl JsonnetArray {
 pub struct JsonnetFunc(pub jrsonnet_evaluator::function::FuncVal);
 
 #[pymethods]
-impl JsonnetFunc {}
+impl JsonnetFunc {
+    #[pyo3(signature = (*args, **kwargs))]
+    fn __call__(
+        &self,
+        py: Python<'_>,
+        args: &Bound<'_, PyTuple>,
+        kwargs: Option<&Bound<'_, PyDict>>,
+    ) -> PyResult<()> {
+        Err(PyRuntimeError::new_err("jsonnet functions not supported"))
+    }
+}
