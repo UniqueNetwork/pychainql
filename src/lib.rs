@@ -12,7 +12,7 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     OnceLock,
 };
-use utils::to_value_error;
+use utils::value_error;
 
 pub(crate) static ENABLE_LOGGER: AtomicBool = AtomicBool::new(false);
 pub(crate) static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
@@ -38,7 +38,7 @@ mod chainql {
     }
 
     #[pymodule_export]
-    use crate::chain::{chain, ChainOpts};
+    use crate::chain::{Chain, ChainOpts};
 
     #[pymodule]
     mod address {
@@ -61,7 +61,7 @@ mod chainql {
         /// TODO
         #[pyfunction]
         fn encode(address: Vec<u8>) -> PyResult<String> {
-            builtin_eth_encode(Hex(address)).map_err(to_value_error)
+            builtin_eth_encode(Hex(address)).map_err(value_error)
         }
 
         /// TODO
@@ -73,7 +73,7 @@ mod chainql {
         /// TODO
         #[pyfunction]
         fn cksum_address_from_ecdsa(pubkey: [u8; 33]) -> PyResult<String> {
-            eth_cksum_address_from_ecdsa(pubkey).map_err(to_value_error)
+            eth_cksum_address_from_ecdsa(pubkey).map_err(value_error)
         }
     }
 
@@ -85,7 +85,7 @@ mod chainql {
         /// Convert a hex string to a vector of bytes
         #[pyfunction]
         fn from_hex(data: &str) -> PyResult<Vec<u8>> {
-            hex::from_hex(data).map_err(to_value_error)
+            hex::from_hex(data).map_err(value_error)
         }
 
         /// Convert an array of bytes to a hex string

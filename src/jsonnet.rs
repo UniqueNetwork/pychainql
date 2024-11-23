@@ -1,7 +1,7 @@
-use crate::jsonnet_tokio::execute_jsonnet;
+use crate::{jsonnet_tokio::execute_jsonnet, utils::jsonnet_error};
 use jrsonnet_evaluator as jsonnet;
 use pyo3::{
-    exceptions::{PyKeyError, PyRuntimeError, PyTypeError},
+    exceptions::{PyKeyError, PyTypeError},
     prelude::*,
     types::{PyBool, PyNone},
 };
@@ -20,12 +20,6 @@ fn jsonnet_to_py(py: Python<'_>, value: jsonnet::Val) -> PyResult<Bound<'_, PyAn
         Obj(obj) => JsonnetObject(obj).into_pyobject(py)?.into_any(),
         Func(func) => JsonnetFunc(func).into_pyobject(py)?.into_any(),
     })
-}
-
-/// TODO
-#[inline(always)]
-fn jsonnet_error(err: jsonnet::error::Error) -> PyErr {
-    PyRuntimeError::new_err(format!("jsonnet: {err}"))
 }
 
 /// TODO

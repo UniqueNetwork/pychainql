@@ -2,7 +2,7 @@
 
 use pyo3::prelude::*;
 
-use crate::{ss58::Ss58AddressFormat, to_value_error};
+use crate::{ss58::Ss58AddressFormat, value_error};
 use ss58_registry as ss58;
 
 /// A known address (sub)format/network ID for SS58
@@ -10,7 +10,7 @@ use ss58_registry as ss58;
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 #[repr(u16)]
 #[allow(clippy::enum_variant_names)]
-pub(crate) enum Ss58AccountFormat {
+pub enum Ss58AccountFormat {
     /// Bare 32-bit Ed25519 public key.
     BareEd25519 = 3u16,
     /// Bare 32-bit ECDSA SECP-256k1 public key.
@@ -632,12 +632,12 @@ impl Ss58AccountFormat {
     pub fn from_format(format: Ss58AddressFormat) -> PyResult<Self> {
         ss58::Ss58AddressFormatRegistry::try_from(format.0)
             .map(Into::into)
-            .map_err(to_value_error)
+            .map_err(value_error)
     }
 
     #[staticmethod]
     pub fn from_name(name: &str) -> PyResult<Self> {
-        let registry = ss58::Ss58AddressFormatRegistry::try_from(name).map_err(to_value_error)?;
+        let registry = ss58::Ss58AddressFormatRegistry::try_from(name).map_err(value_error)?;
         Ok(registry.into())
     }
 }

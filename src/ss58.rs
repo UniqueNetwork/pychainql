@@ -1,11 +1,11 @@
 use pyo3::prelude::*;
 
-use crate::{ss58_registry::Ss58AccountFormat, to_value_error};
+use crate::{ss58_registry::Ss58AccountFormat, value_error};
 use ss58_registry as ss58_crate;
 
 #[pyclass(str)]
 #[derive(Clone, Copy)]
-pub(crate) struct Ss58AddressFormat(pub ss58_crate::Ss58AddressFormat);
+pub struct Ss58AddressFormat(pub ss58_crate::Ss58AddressFormat);
 
 #[pymethods]
 impl Ss58AddressFormat {
@@ -17,7 +17,7 @@ impl Ss58AddressFormat {
 
     #[staticmethod]
     pub fn from_name(name: &str) -> PyResult<Self> {
-        let format = ss58_crate::Ss58AddressFormat::try_from(name).map_err(to_value_error)?;
+        let format = ss58_crate::Ss58AddressFormat::try_from(name).map_err(value_error)?;
         Ok(Self(format))
     }
 
@@ -63,19 +63,19 @@ impl std::fmt::Display for Ss58AddressFormat {
 /// Encode bytes to SS58 string
 #[pyfunction]
 #[pyo3(signature = (raw, format=None))]
-pub(crate) fn ss58_encode(raw: Vec<u8>, format: Option<Ss58AddressFormat>) -> PyResult<String> {
+pub fn ss58_encode(raw: Vec<u8>, format: Option<Ss58AddressFormat>) -> PyResult<String> {
     let raw = chainql_core::hex::Hex(raw);
     let format = format.map(|f| chainql_core::address::Ss58Format(f.0));
 
     chainql_core::builtin_ss58_encode(raw, format)
         .map(|encoded| encoded.to_string())
-        .map_err(to_value_error)
+        .map_err(value_error)
 }
 
 /// Parse SS58 address to bytes
 #[pyfunction]
-pub(crate) fn ss58_decode(ss58: &str) -> PyResult<Vec<u8>> {
+pub fn ss58_decode(ss58: &str) -> PyResult<Vec<u8>> {
     chainql_core::builtin_ss58(ss58.into())
         .map(|hex| hex.0)
-        .map_err(to_value_error)
+        .map_err(value_error)
 }
