@@ -1,16 +1,27 @@
 mod address;
 mod chain;
+mod jsonnet;
+mod jsonnet_tokio;
 mod ss58;
 mod ss58_registry;
 
 use pyo3::{exceptions::PyValueError, prelude::*};
+use std::sync::OnceLock;
+
+pub(crate) static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
 
 #[pymodule]
 mod chainql {
     use super::*;
 
-        #[pymodule_export]
-        use crate::chain::{chain, ChainOpts};
+    #[pymodule_init]
+    fn init(_m: &Bound<'_, PyModule>) -> PyResult<()> {
+        jsonnet_tokio::init();
+        Ok(())
+    }
+
+    #[pymodule_export]
+    use crate::chain::{chain, ChainOpts};
 
     #[pymodule]
     mod address {
