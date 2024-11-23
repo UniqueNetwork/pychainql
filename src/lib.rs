@@ -80,6 +80,24 @@ mod chainql {
     }
 
     #[pymodule]
+    mod hash {
+        use super::*;
+        use chainql_core::hex::Hex;
+
+        /// Conduct a 128-bit XX hash
+        #[pyfunction]
+        fn twox128(data: Vec<u8>) -> Vec<u8> {
+            chainql_core::builtin_twox128(Hex(data)).0
+        }
+
+        /// Conduct a 256-bit Keccak hash
+        #[pyfunction]
+        fn keccak256(data: Vec<u8>) -> Vec<u8> {
+            chainql_core::builtin_keccak256(Hex(data)).0
+        }
+    }
+
+    #[pymodule]
     mod hex {
         use super::*;
         use chainql_core::hex;
