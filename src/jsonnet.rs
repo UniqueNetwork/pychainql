@@ -1,7 +1,7 @@
 use crate::{
     jsonnet_py::{jsonnet_to_py, py_to_jsonnet, pydict_to_jsonnet, pylist_to_jsonnet},
     jsonnet_tokio::execute_jsonnet,
-    utils::jsonnet_error,
+    utils::{jsonnet_error, type_error},
 };
 use jrsonnet_evaluator as jsonnet;
 use pyo3::{
@@ -23,15 +23,34 @@ impl JsonnetObject {
         key: &Bound<'_, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         execute_jsonnet(|| {
-            let Ok(key) = key.extract::<&str>() else {
-                return Err(PyTypeError::new_err("key should be a string"));
-            };
+            let key = key
+                .extract::<&str>()
+                .map_err(|err| type_error(py, "key should be a string", err))?;
 
-            let Some(value) = self.0.get(key.into()).map_err(jsonnet_error)? else {
-                return Err(PyKeyError::new_err(key.to_owned()));
-            };
+            let value = self
+                .0
+                .get(key.into())
+                .map_err(jsonnet_error)?
+                .ok_or_else(|| PyKeyError::new_err(key.to_owned()))?;
 
             jsonnet_to_py(py, value)
+        })
+    }
+
+    /// TODO
+    #[pyo3(signature = (minified=true))]
+    fn manifest_json(&self, minified: bool) -> PyResult<String> {
+        execute_jsonnet(|| {
+            let preserve_order = true;
+            let fmt = if minified {
+                jrsonnet_evaluator::manifest::JsonFormat::minify(preserve_order)
+            } else {
+                jrsonnet_evaluator::manifest::JsonFormat::cli(2, preserve_order)
+            };
+
+            jrsonnet_evaluator::Val::Obj(self.0.clone())
+                .manifest(fmt)
+                .map_err(jsonnet_error)
         })
     }
 }
