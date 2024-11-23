@@ -1,6 +1,7 @@
 mod address;
 mod chain;
 mod jsonnet;
+mod jsonnet_py;
 mod jsonnet_tokio;
 mod ss58;
 mod ss58_registry;

@@ -1,9 +1,15 @@
 use pyo3::{
-    exceptions::{PyRuntimeError, PyValueError},
+    exceptions::{PyRuntimeError, PyTypeError, PyValueError},
     prelude::*,
 };
 
-/// TODO
+#[inline(always)]
+pub fn type_error(py: Python<'_>, description: impl ToString, cause: PyErr) -> PyErr {
+    let new_err = PyTypeError::new_err(description.to_string());
+    new_err.set_cause(py, Some(cause));
+    new_err
+}
+
 #[inline(always)]
 pub fn jsonnet_error(err: jrsonnet_evaluator::error::Error) -> PyErr {
     PyRuntimeError::new_err(format!("jsonnet: {err}"))

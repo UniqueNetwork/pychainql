@@ -471,6 +471,7 @@ dependencies = [
  "either",
  "gag",
  "jrsonnet-evaluator",
+ "num-bigint",
  "pyo3",
  "ss58-registry",
  "tokio",

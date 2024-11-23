@@ -1,26 +1,14 @@
-use crate::{jsonnet_tokio::execute_jsonnet, utils::jsonnet_error};
+use crate::{
+    jsonnet_py::{jsonnet_to_py, py_to_jsonnet, pydict_to_jsonnet, pylist_to_jsonnet},
+    jsonnet_tokio::execute_jsonnet,
+    utils::jsonnet_error,
+};
 use jrsonnet_evaluator as jsonnet;
 use pyo3::{
     exceptions::{PyKeyError, PyRuntimeError, PyTypeError},
     prelude::*,
-    types::{PyBool, PyDict, PyNone, PyTuple},
+    types::{PyBool, PyDict, PyFunction, PyList, PyNone, PySet, PyTuple},
 };
-
-/// TODO
-fn jsonnet_to_py(py: Python<'_>, value: jsonnet::Val) -> PyResult<Bound<'_, PyAny>> {
-    use jsonnet::Val::*;
-
-    Ok(match value {
-        Bool(b) => PyBool::new(py, b).to_owned().into_any(),
-        Null => PyNone::get(py).to_owned().into_any(),
-        Str(s) => s.into_flat().as_str().into_pyobject(py)?.into_any(),
-        Num(num) => num.into_pyobject(py)?.into_any(),
-        BigInt(bignum) => bignum.into_pyobject(py)?.into_any(),
-        Arr(arr) => JsonnetArray(arr).into_pyobject(py)?.into_any(),
-        Obj(obj) => JsonnetObject(obj).into_pyobject(py)?.into_any(),
-        Func(func) => JsonnetFunc(func).into_pyobject(py)?.into_any(),
-    })
-}
 
 /// TODO
 #[pyclass(unsendable, mapping)]
@@ -36,7 +24,7 @@ impl JsonnetObject {
     ) -> PyResult<Bound<'py, PyAny>> {
         execute_jsonnet(|| {
             let Ok(key) = key.extract::<&str>() else {
-                return Err(PyTypeError::new_err("Key should be a string"));
+                return Err(PyTypeError::new_err("key should be a string"));
             };
 
             let Some(value) = self.0.get(key.into()).map_err(jsonnet_error)? else {
@@ -62,7 +50,7 @@ impl JsonnetArray {
     ) -> PyResult<Bound<'py, PyAny>> {
         execute_jsonnet(|| {
             let Ok(idx) = key.extract::<usize>() else {
-                return Err(PyTypeError::new_err("Index should be a decimal"));
+                return Err(PyTypeError::new_err("index should be a decimal"));
             };
 
             let Some(value) = self.0.get(idx).map_err(jsonnet_error)? else {
@@ -81,13 +69,21 @@ pub struct JsonnetFunc(pub jrsonnet_evaluator::function::FuncVal);
 
 #[pymethods]
 impl JsonnetFunc {
-    #[pyo3(signature = (*args, **kwargs))]
-    fn __call__(
+    #[pyo3(signature = (*args))]
+    fn __call__<'py>(
         &self,
-        py: Python<'_>,
+        py: Python<'py>,
         args: &Bound<'_, PyTuple>,
-        kwargs: Option<&Bound<'_, PyDict>>,
-    ) -> PyResult<()> {
-        Err(PyRuntimeError::new_err("jsonnet functions not supported"))
+    ) -> PyResult<Bound<'py, PyAny>> {
+        execute_jsonnet(|| {
+            let args = pylist_to_jsonnet(py, args.iter())?;
+
+            let out = self
+                .0
+                .evaluate_simple(&args, false)
+                .map_err(jsonnet_error)?;
+
+            jsonnet_to_py(py, out)
+        })
     }
 }
