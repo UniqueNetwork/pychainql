@@ -4,10 +4,17 @@ mod jsonnet;
 mod jsonnet_tokio;
 mod ss58;
 mod ss58_registry;
+mod utils;
 
-use pyo3::{exceptions::PyValueError, prelude::*};
-use std::sync::OnceLock;
+use pyo3::prelude::*;
 
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    OnceLock,
+};
+use utils::to_value_error;
+
+pub(crate) static ENABLE_LOGGER: AtomicBool = AtomicBool::new(false);
 pub(crate) static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
 
 #[pymodule]
@@ -18,6 +25,16 @@ mod chainql {
     fn init(_m: &Bound<'_, PyModule>) -> PyResult<()> {
         jsonnet_tokio::init();
         Ok(())
+    }
+
+    #[pyfunction]
+    fn enable_logs() {
+        ENABLE_LOGGER.store(true, Ordering::SeqCst);
+    }
+
+    #[pyfunction]
+    fn disable_logs() {
+        ENABLE_LOGGER.store(false, Ordering::SeqCst);
     }
 
     #[pymodule_export]
@@ -76,16 +93,5 @@ mod chainql {
         fn to_hex(data: &[u8]) -> String {
             hex::to_hex(data)
         }
-    }
-}
-
-#[inline(always)]
-pub(crate) fn to_value_error(err: impl std::error::Error) -> PyErr {
-    let human_err = err.to_string();
-
-    if let Some(human_err) = human_err.strip_prefix("runtime error: ") {
-        PyValueError::new_err(human_err.to_owned())
-    } else {
-        PyValueError::new_err(human_err)
     }
 }

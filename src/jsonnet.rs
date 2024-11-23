@@ -1,3 +1,4 @@
+use crate::jsonnet_tokio::execute_jsonnet;
 use jrsonnet_evaluator as jsonnet;
 use pyo3::{
     exceptions::{PyKeyError, PyRuntimeError, PyTypeError},
@@ -22,6 +23,7 @@ fn jsonnet_to_py(py: Python<'_>, value: jsonnet::Val) -> PyResult<Bound<'_, PyAn
 }
 
 /// TODO
+#[inline(always)]
 fn jsonnet_error(err: jsonnet::error::Error) -> PyErr {
     PyRuntimeError::new_err(format!("jsonnet: {err}"))
 }
@@ -37,7 +39,7 @@ impl JsonnetObject {
         py: Python<'py>,
         key: &Bound<'_, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        crate::jsonnet_tokio::execute_in_tokio(|| {
+        execute_jsonnet(|| {
             let Ok(key) = key.extract::<&str>() else {
                 return Err(PyTypeError::new_err("Key should be a string"));
             };
@@ -62,7 +64,7 @@ impl JsonnetArray {
         py: Python<'py>,
         key: &Bound<'_, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        crate::jsonnet_tokio::execute_in_tokio(|| {
+        execute_jsonnet(|| {
             let Ok(idx) = key.extract::<usize>() else {
                 return Err(PyTypeError::new_err("Index should be a decimal"));
             };

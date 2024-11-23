@@ -1,6 +1,5 @@
-use crate::jsonnet::JsonnetObject;
+use crate::{jsonnet::JsonnetObject, jsonnet_tokio::execute_jsonnet};
 use pyo3::{exceptions::PyBaseException, prelude::*};
-use tokio::task::block_in_place;
 
 /// Selection of optional flags for chain data processing
 #[pyclass]
@@ -16,7 +15,7 @@ pub(crate) struct ChainOpts {
 #[pyfunction]
 #[pyo3(signature = (url, opts=None))]
 pub(crate) fn chain(url: String, opts: Option<ChainOpts>) -> PyResult<JsonnetObject> {
-    crate::jsonnet_tokio::execute_in_tokio(|| {
+    execute_jsonnet(|| {
         let opts = opts.map(|opts| chainql_core::ChainOpts {
             include_defaults: opts.include_defaults,
             omit_empty: opts.omit_empty,

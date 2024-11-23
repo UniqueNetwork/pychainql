@@ -1,3 +1,5 @@
+use gag::Gag;
+use std::sync::atomic::Ordering;
 use tokio::task::block_in_place;
 
 pub(crate) fn init() {
@@ -11,8 +13,12 @@ pub(crate) fn init() {
 }
 
 #[inline(always)]
-pub(crate) fn execute_in_tokio<F: FnOnce() -> T, T>(f: F) -> T {
+pub(crate) fn execute_jsonnet<F: FnOnce() -> T, T>(f: F) -> T {
+    let use_logger = crate::ENABLE_LOGGER.load(Ordering::SeqCst);
+    let _gag = (!use_logger).then(|| (Gag::stdout().unwrap(), Gag::stderr().unwrap()));
+
     let runtime = crate::RUNTIME.get().unwrap();
     let _enter_guard = runtime.enter();
+
     block_in_place(f)
 }
