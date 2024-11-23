@@ -1,14 +1,41 @@
 use crate::{jsonnet::JsonnetObject, jsonnet_tokio::execute_jsonnet, utils::jsonnet_error};
+use chainql_core::hex::Hex;
+use either::Either;
 use pyo3::{exceptions::PyBaseException, prelude::*};
+use std::collections::BTreeMap;
 
 /// Selection of optional flags for chain data processing
 #[pyclass]
 #[derive(Clone, Copy, Default)]
 pub struct ChainOpts {
     /// Whether or not to ignore trie prefixes with no keys
-    omit_empty: bool,
+    #[pyo3(get, set)]
+    pub omit_empty: bool,
+
     /// Should default values be included in output
-    include_defaults: bool,
+    #[pyo3(get, set)]
+    pub include_defaults: bool,
+}
+
+#[pymethods]
+impl ChainOpts {
+    #[new]
+    #[pyo3(signature = (omit_empty=false, include_defaults=false))]
+    pub fn new(omit_empty: bool, include_defaults: bool) -> Self {
+        ChainOpts {
+            omit_empty,
+            include_defaults,
+        }
+    }
+}
+
+impl From<ChainOpts> for chainql_core::ChainOpts {
+    fn from(opts: ChainOpts) -> Self {
+        chainql_core::ChainOpts {
+            include_defaults: opts.include_defaults,
+            omit_empty: opts.omit_empty,
+        }
+    }
 }
 
 /// TODO
@@ -21,15 +48,9 @@ impl Chain {
     #[pyo3(signature = (url, opts=None))]
     pub fn new(url: String, opts: Option<ChainOpts>) -> PyResult<Self> {
         execute_jsonnet(|| {
-            let opts = opts.map(|opts| chainql_core::ChainOpts {
-                include_defaults: opts.include_defaults,
-                omit_empty: opts.omit_empty,
-            });
-
-            let chain = chainql_core::builtin_chain(url, opts)
-                .map_err(|err| PyBaseException::new_err(err.to_string()))?;
-
-            Ok(Self(JsonnetObject(chain)))
+            chainql_core::builtin_chain(url, opts.map(Into::into))
+                .map(|chain| Self(JsonnetObject(chain)))
+                .map_err(|err| PyBaseException::new_err(err.to_string()))
         })
     }
 
@@ -68,4 +89,29 @@ impl Chain {
             Ok(JsonnetObject(block))
         })
     }
+}
+
+#[pyfunction]
+#[pyo3(signature = (meta, data, opts=None))]
+pub fn dump(
+    meta: Either<JsonnetObject, Vec<u8>>,
+    data: BTreeMap<Vec<u8>, Vec<u8>>,
+    opts: Option<ChainOpts>,
+) -> PyResult<JsonnetObject> {
+    execute_jsonnet(|| {
+        let meta = match meta {
+            Either::Left(l) => jrsonnet_evaluator::typed::Either2::A(l.0),
+            Either::Right(r) => jrsonnet_evaluator::typed::Either2::B(Hex(r)),
+        };
+
+        // SAFETY: Vec<u8> and Hex have the same layout and size.
+        let data =
+            unsafe { core::mem::transmute::<BTreeMap<Vec<u8>, Vec<u8>>, BTreeMap<Hex, Hex>>(data) };
+
+        let opts = opts.map(Into::into);
+
+        chainql_core::builtin_dump(meta, data, opts)
+            .map(JsonnetObject)
+            .map_err(|err| PyBaseException::new_err(err.to_string()))
+    })
 }

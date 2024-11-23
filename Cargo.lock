@@ -468,6 +468,7 @@ name = "chainql"
 version = "0.1.0"
 dependencies = [
  "chainql-core",
+ "either",
  "gag",
  "jrsonnet-evaluator",
  "pyo3",
@@ -2686,6 +2687,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ebb0c0cc0de9678e53be9ccf8a2ab53045e6e3a8be03393ceccc5e7396ccb40"
 dependencies = [
  "cfg-if",
+ "either",
  "indoc",
  "libc",
  "memoffset 0.9.1",

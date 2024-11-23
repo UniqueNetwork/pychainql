@@ -38,6 +38,8 @@ mod chainql {
     }
 
     #[pymodule_export]
+    use crate::chain::dump;
+    #[pymodule_export]
     use crate::chain::{Chain, ChainOpts};
 
     #[pymodule]

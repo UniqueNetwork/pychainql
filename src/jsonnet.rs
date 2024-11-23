@@ -24,6 +24,7 @@ fn jsonnet_to_py(py: Python<'_>, value: jsonnet::Val) -> PyResult<Bound<'_, PyAn
 
 /// TODO
 #[pyclass(unsendable, mapping)]
+#[derive(Clone)]
 pub struct JsonnetObject(pub jrsonnet_evaluator::ObjValue);
 
 #[pymethods]
@@ -49,6 +50,7 @@ impl JsonnetObject {
 
 /// TODO
 #[pyclass(unsendable, mapping)]
+#[derive(Clone)]
 pub struct JsonnetArray(pub jrsonnet_evaluator::val::ArrValue);
 
 #[pymethods]
@@ -74,6 +76,7 @@ impl JsonnetArray {
 
 /// TODO
 #[pyclass(unsendable)]
+#[derive(Clone)]
 pub struct JsonnetFunc(pub jrsonnet_evaluator::function::FuncVal);
 
 #[pymethods]
