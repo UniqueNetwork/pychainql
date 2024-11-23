@@ -9,11 +9,8 @@ use pyo3::{exceptions::PyValueError, prelude::*};
 mod chainql {
     use super::*;
 
-    #[pymodule]
-    mod chain {
         #[pymodule_export]
         use crate::chain::{chain, ChainOpts};
-    }
 
     #[pymodule]
     mod address {
