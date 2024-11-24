@@ -5,7 +5,7 @@ use pyo3::{exceptions::PyBaseException, prelude::*};
 use std::collections::BTreeMap;
 
 /// Selection of optional flags for chain data processing
-#[pyclass]
+#[pyclass(str)]
 #[derive(Clone, Copy, Default)]
 pub struct ChainOpts {
     /// Whether or not to ignore trie prefixes with no keys
@@ -26,6 +26,25 @@ impl ChainOpts {
             omit_empty,
             include_defaults,
         }
+    }
+}
+
+impl std::fmt::Display for ChainOpts {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        #[inline(always)]
+        const fn pybool(value: bool) -> &'static str {
+            if value {
+                "True"
+            } else {
+                "False"
+            }
+        }
+
+        f.write_fmt(format_args!(
+            "{{'omit_empty': {omit_empty}, 'include_defaults': {include_defaults}}}",
+            omit_empty = pybool(self.omit_empty),
+            include_defaults = pybool(self.include_defaults),
+        ))
     }
 }
 
