@@ -10,8 +10,8 @@ pub struct Ss58AddressFormat(pub ss58_crate::Ss58AddressFormat);
 #[pymethods]
 impl Ss58AddressFormat {
     #[new]
-    pub fn new(registry: Ss58AccountFormat) -> Self {
-        let registry = ss58_crate::Ss58AddressFormatRegistry::from(registry);
+    pub fn new(format: Ss58AccountFormat) -> Self {
+        let registry = ss58_crate::Ss58AddressFormatRegistry::from(format);
         Self(ss58_crate::Ss58AddressFormat::from(registry))
     }
 

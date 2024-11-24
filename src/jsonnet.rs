@@ -1,13 +1,12 @@
 use crate::{
-    jsonnet_py::{jsonnet_to_py, py_to_jsonnet, pydict_to_jsonnet, pylist_to_jsonnet},
+    jsonnet_py::{jsonnet_to_py, pylist_to_jsonnet},
     jsonnet_tokio::execute_jsonnet,
     utils::{jsonnet_error, type_error},
 };
-use jrsonnet_evaluator as jsonnet;
 use pyo3::{
-    exceptions::{PyKeyError, PyRuntimeError, PyTypeError},
+    exceptions::{PyKeyError, PyTypeError},
     prelude::*,
-    types::{PyBool, PyDict, PyFunction, PyList, PyNone, PySet, PyTuple},
+    types::PyTuple,
 };
 
 /// TODO
