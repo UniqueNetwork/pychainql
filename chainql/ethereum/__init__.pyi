@@ -1,0 +1,3 @@
+def encode(address: bytes) -> str:
+    """Encode bytes to ethereum address string"""
+    ...

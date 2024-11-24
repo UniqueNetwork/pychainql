@@ -6,7 +6,7 @@ use jrsonnet_evaluator as jsonnet;
 use pyo3::{
     exceptions::PyTypeError,
     prelude::*,
-    types::{PyBool, PyDict, PyFunction, PyList, PyNone, PySet, PyTuple},
+    types::{PyBool, PyCFunction, PyDict, PyList, PyNone, PySet, PyTuple},
 };
 
 /// Convert jsonnet value to python object.
@@ -49,7 +49,7 @@ pub fn py_to_jsonnet(py: Python<'_>, arg: Bound<'_, PyAny>) -> PyResult<jsonnet:
     } else if let Ok(dict) = arg.extract::<Bound<'_, PyDict>>() {
         let obj = pydict_to_jsonnet(py, dict)?;
         Ok(jsonnet::Val::Obj(obj))
-    } else if let Ok(_func) = arg.extract::<Bound<'_, PyFunction>>() {
+    } else if let Ok(_func) = arg.extract::<Bound<'_, PyCFunction>>() {
         Err(PyTypeError::new_err("functions are not supported"))
     } else {
         let ty_name = arg.get_type().name()?;

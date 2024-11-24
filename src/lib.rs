@@ -58,7 +58,7 @@ mod chainql {
         use super::*;
         use chainql_core::{ethereum::builtin_eth_encode, hex::Hex};
 
-        /// TODO
+        /// Encode bytes to ethereum address string
         #[pyfunction]
         fn encode(address: Vec<u8>) -> PyResult<String> {
             builtin_eth_encode(Hex(address)).map_err(value_error)
@@ -88,13 +88,13 @@ mod chainql {
         use super::*;
         use chainql_core::hex;
 
-        /// Convert a hex string to a vector of bytes
+        /// Convert a hex string to bytes
         #[pyfunction]
         fn from_hex(data: &str) -> PyResult<Vec<u8>> {
             hex::from_hex(data).map_err(value_error)
         }
 
-        /// Convert an array of bytes to a hex string
+        /// Convert bytes to a hex string
         #[pyfunction]
         fn to_hex(data: &[u8]) -> String {
             hex::to_hex(data)
