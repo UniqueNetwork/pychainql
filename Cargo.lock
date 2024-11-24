@@ -480,6 +480,7 @@ dependencies = [
 [[package]]
 name = "chainql-core"
 version = "0.4.7"
+source = "git+https://github.com/UniqueNetwork/chainql.git?branch=pub-builtin#57ad8b00bc954e78938a680cac2a9e164d017bd3"
 dependencies = [
  "chainql-frame-metadata",
  "cumulus-primitives-proof-size-hostfunction",
@@ -510,6 +511,7 @@ dependencies = [
 [[package]]
 name = "chainql-frame-metadata"
 version = "0.4.7"
+source = "git+https://github.com/UniqueNetwork/chainql.git?branch=pub-builtin#57ad8b00bc954e78938a680cac2a9e164d017bd3"
 dependencies = [
  "cfg-if",
  "parity-scale-codec",
