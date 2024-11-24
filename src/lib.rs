@@ -42,6 +42,8 @@ mod chainql {
     use crate::chain::dump;
     #[pymodule_export]
     use crate::chain::{Chain, ChainOpts};
+    #[pymodule_export]
+    use crate::jsonnet::{JsonnetArray, JsonnetFunc, JsonnetObject};
 
     #[pymodule]
     mod address {
