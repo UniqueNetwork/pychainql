@@ -12,7 +12,7 @@ You can either download binaries from the [latest release](https://github.com/vk
 pip install chainql
 ```
 
-Documentation can be found [here](https://google.com), examples [here](examples).
+Stubs can be found [here](stubs), examples [here](examples).
 
 ## Build project
 
@@ -25,7 +25,7 @@ Build requirements:
 First, create and activate a virtualenv environment:
 
 ```
-$ pyenv virtualenv pychainql
+$ pyenv virtualenv 3.11 pychainql
 $ pyenv activate pychainql
 ```
 
