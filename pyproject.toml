@@ -7,9 +7,6 @@ name = "chainql"
 requires-python = ">=3.10"
 classifiers = []
 dynamic = ["version"]
-dependencies = [
-    "pdoc==15.0.0"
-]
 
 [tool.maturin]
 python-source = "stubs"
