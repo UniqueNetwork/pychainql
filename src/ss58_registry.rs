@@ -6,8 +6,8 @@ use crate::{ss58::Ss58AddressFormat, value_error};
 use ss58_registry as ss58;
 
 /// A known address (sub)format/network ID for SS58
-#[pyclass(eq, eq_int, str)]
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[pyclass(frozen, eq, eq_int, str, hash)]
+#[derive(Copy, Clone, Hash, PartialEq, Eq, Debug)]
 #[repr(u16)]
 #[allow(clippy::enum_variant_names)]
 pub enum Ss58AccountFormat {
