@@ -32,7 +32,7 @@ $ pyenv activate pychainql
 Then install maturin:
 
 ```
-$ pip install maturin
+$ pip install maturin patchelf
 ```
 
 And build the project:
