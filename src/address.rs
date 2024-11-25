@@ -4,8 +4,8 @@ use crate::{ss58::Ss58AddressFormat, value_error};
 use chainql_core::address as chainql_address;
 
 /// TODO
-#[pyclass(eq, eq_int, str)]
-#[derive(Clone, Copy, PartialEq)]
+#[pyclass(frozen, eq, eq_int, str, hash)]
+#[derive(Clone, Copy, Hash, PartialEq)]
 pub enum SignatureSchema {
     Ed25519,
     Sr25519,
