@@ -16,7 +16,7 @@ import enum
 from typing import Optional, Self
 
 class Ss58AddressFormat:
-    def __init__(self, format):
+    def __init__(self, format) -> None:
         ...
     
     @staticmethod

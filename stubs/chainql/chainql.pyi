@@ -12,26 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
+from typing import Callable, Mapping, Optional, Sequence
 
 def enable_logs(): ...
 
 def disable_logs(): ...
 
-class JsonnetObject:
-    def __getitem__(self, key: any) -> any:
-        ...
+class JsonnetObject(Mapping):
+    def keys(self, include_hidden: bool = False): ...
+    def values(self, include_hidden: bool = False): ...
+    def items(self, include_hidden: bool = False): ...
 
     def manifest_json(self, minified: bool = True) -> str:
         ...
 
-class JsonnetArray:
-    def __getitem__(self, key: any) -> any:
+class JsonnetArray(Sequence):
+    def manifest_json(self, minified: bool = True) -> str:
         ...
 
-class JsonnetFunc:
-    def __call__(self, *args) -> any:
-        ...
+class JsonnetFunc(Callable):
+    ...
 
 class ChainOpts:
     """Selection of optional flags for chain data processing"""
@@ -42,11 +42,11 @@ class ChainOpts:
     include_defaults: bool
     """Should default values be included in output"""
 
-    def __init__(self, omit_empty: bool = True, include_defaults: bool = True):
+    def __init__(self, omit_empty: bool = True, include_defaults: bool = True) -> None:
         ...
 
 class Chain:
-    def __init__(url: str, opts: Optional[ChainOpts]):
+    def __init__(url: str, opts: Optional[ChainOpts] = None) -> None:
         ...
     
     def latest(self) -> JsonnetObject:
