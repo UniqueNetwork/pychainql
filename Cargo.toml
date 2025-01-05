@@ -1,6 +1,6 @@
 [package]
 name = "chainql"
-version = "0.4.7-beta2"
+version = "0.4.7-beta3"
 edition = "2021"
 
 [lib]
@@ -8,10 +8,12 @@ name = "chainql"
 crate-type = ["cdylib"]
 
 [dependencies]
-chainql-core = { git = "https://github.com/UniqueNetwork/chainql.git", branch = "pub-builtin" }
+chainql-core = { path = "../chainql/crates/chainql-core" }
 either = "1.13.0"
 gag = "1.0.0"
-jrsonnet-evaluator = { version = "0.5.0-pre95" }
+#jrsonnet-evaluator = { version = "0.5.0-pre95" }
+jrsonnet-evaluator = { path = "../jrsonnet-threadsafe/crates/jrsonnet-evaluator", features = ["exp-bigint"] }
+jsonnet = { path = "../jrsonnet-threadsafe/bindings/jsonnet" }
 num-bigint = "0.4.6"
 ss58-registry = "1.34.0"
 tokio = { version = "1.41.1", default-features = false, features = ["rt", "rt-multi-thread"] }
@@ -19,6 +21,9 @@ tokio = { version = "1.41.1", default-features = false, features = ["rt", "rt-mu
 [dependencies.pyo3]
 version = "0.23.1"
 features = ["abi3-py310", "extension-module", "num-bigint", "either"]
+
+[patch.crates-io]
+jrsonnet-gcmodule = { path = "../jrsonnet-gcmodule" }
 
 [profile.release]
 opt-level = 3

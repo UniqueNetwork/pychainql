@@ -15,7 +15,7 @@
 use crate::{jsonnet::JsonnetObject, jsonnet_tokio::execute_jsonnet, utils::jsonnet_error};
 use chainql_core::hex::Hex;
 use either::Either;
-use pyo3::{exceptions::PyBaseException, prelude::*};
+use pyo3::prelude::*;
 use std::collections::BTreeMap;
 
 /// Selection of optional flags for chain data processing
@@ -79,16 +79,16 @@ pub struct Chain(JsonnetObject);
 impl Chain {
     #[new]
     #[pyo3(signature = (url, opts=None))]
-    pub fn new(url: String, opts: Option<ChainOpts>) -> PyResult<Self> {
-        execute_jsonnet(|| {
+    pub fn new(py: Python<'_>, url: String, opts: Option<ChainOpts>) -> PyResult<Self> {
+        execute_jsonnet(py, || {
             chainql_core::builtin_chain(url, opts.map(Into::into))
                 .map(|chain| Self(JsonnetObject(chain)))
-                .map_err(|err| PyBaseException::new_err(err.to_string()))
+                .map_err(jsonnet_error)
         })
     }
 
-    pub fn latest(&self) -> PyResult<JsonnetObject> {
-        execute_jsonnet(|| {
+    pub fn latest(&self, py: Python<'_>) -> PyResult<JsonnetObject> {
+        execute_jsonnet(py, || {
             let chain = &self.0 .0;
 
             let latest = chain
@@ -102,8 +102,8 @@ impl Chain {
         })
     }
 
-    pub fn block(&self, block: u32) -> PyResult<JsonnetObject> {
-        execute_jsonnet(|| {
+    pub fn block(&self, py: Python<'_>, block: u32) -> PyResult<JsonnetObject> {
+        execute_jsonnet(py, || {
             let chain = &self.0 .0;
 
             let block_func = chain
@@ -127,11 +127,12 @@ impl Chain {
 #[pyfunction]
 #[pyo3(signature = (meta, data, opts=None))]
 pub fn dump(
+    py: Python<'_>,
     meta: Either<JsonnetObject, Vec<u8>>,
     data: BTreeMap<Vec<u8>, Vec<u8>>,
     opts: Option<ChainOpts>,
 ) -> PyResult<JsonnetObject> {
-    execute_jsonnet(|| {
+    execute_jsonnet(py, || {
         let meta = match meta {
             Either::Left(l) => jrsonnet_evaluator::typed::Either2::A(l.0),
             Either::Right(r) => jrsonnet_evaluator::typed::Either2::B(Hex(r)),
@@ -145,6 +146,6 @@ pub fn dump(
 
         chainql_core::builtin_dump(meta, data, opts)
             .map(JsonnetObject)
-            .map_err(|err| PyBaseException::new_err(err.to_string()))
+            .map_err(jsonnet_error)
     })
 }

@@ -17,6 +17,7 @@ use crate::{
     utils::type_error,
 };
 use jrsonnet_evaluator as jsonnet;
+use jrsonnet_evaluator::val::NumValue;
 use pyo3::{
     exceptions::PyTypeError,
     prelude::*,
@@ -48,7 +49,7 @@ pub fn py_to_jsonnet(py: Python<'_>, arg: Bound<'_, PyAny>) -> PyResult<jsonnet:
     } else if let Ok(s) = arg.extract::<&str>() {
         Ok(jsonnet::Val::Str(s.into()))
     } else if let Ok(num) = arg.extract::<f64>() {
-        Ok(jsonnet::Val::Num(num))
+        Ok(jsonnet::Val::Num(NumValue::new(num).unwrap()))
     } else if let Ok(num) = arg.extract::<num_bigint::BigInt>() {
         Ok(jsonnet::Val::BigInt(Box::new(num)))
     } else if let Ok(list) = arg.extract::<Bound<'_, PyList>>() {

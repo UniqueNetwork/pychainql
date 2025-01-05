@@ -23,24 +23,22 @@ mod utils;
 
 use pyo3::prelude::*;
 
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    OnceLock,
-};
+use std::sync::{atomic::{AtomicBool, Ordering}, LazyLock, OnceLock};
 use utils::value_error;
 
 pub(crate) static ENABLE_LOGGER: AtomicBool = AtomicBool::new(false);
-pub(crate) static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
+
+pub(crate) static RUNTIME: LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
+    tokio::runtime::Builder::new_multi_thread()
+        .thread_name("chainql-tokio-runtime")
+        .enable_all()
+        .build()
+        .unwrap()
+});
 
 #[pymodule]
 mod chainql {
     use super::*;
-
-    #[pymodule_init]
-    fn init(_m: &Bound<'_, PyModule>) -> PyResult<()> {
-        jsonnet_tokio::init();
-        Ok(())
-    }
 
     #[pyfunction]
     fn enable_logs() {
