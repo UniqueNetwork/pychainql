@@ -46,7 +46,7 @@ impl JsonnetObject {
         py: Python<'py>,
         name: &Bound<'_, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             let key = name
                 .extract::<&str>()
                 .map_err(|err| type_error(py, "key should be a string", err))?;
@@ -94,7 +94,7 @@ impl JsonnetObject {
 
     #[pyo3(signature = (minified=true))]
     fn manifest_json(&self, minified: bool) -> PyResult<String> {
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             let preserve_order = true;
             let fmt = if minified {
                 jrsonnet_evaluator::manifest::JsonFormat::minify(preserve_order)
@@ -144,7 +144,7 @@ impl JsonnetObjectValues {
         slf: PyRefMut<'py, Self>,
         py: Python<'py>,
     ) -> PyResult<Option<Bound<'py, PyAny>>> {
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             let Some(key) = slf.iter.borrow_mut().next() else {
                 return Ok(None);
             };
@@ -176,7 +176,7 @@ impl JsonnetObjectItems {
         slf: PyRefMut<'py, Self>,
         py: Python<'py>,
     ) -> PyResult<Option<(String, Bound<'py, PyAny>)>> {
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             let Some(key) = slf.iter.borrow_mut().next() else {
                 return Ok(None);
             };
@@ -207,7 +207,7 @@ impl JsonnetArray {
     }
 
     fn __contains__(&self, py: Python<'_>, object: Bound<'_, PyAny>) -> PyResult<bool> {
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             let value = py_to_jsonnet(py, object)?;
 
             for c in self.0.iter_lazy() {
@@ -227,7 +227,7 @@ impl JsonnetArray {
         py: Python<'py>,
         key: &Bound<'_, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             let Ok(idx) = key.extract::<usize>() else {
                 return Err(PyTypeError::new_err("index should be a decimal"));
             };
@@ -249,7 +249,7 @@ impl JsonnetArray {
 
     #[pyo3(signature = (minified=true))]
     fn manifest_json(&self, minified: bool) -> PyResult<String> {
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             let preserve_order = true;
             let fmt = if minified {
                 jrsonnet_evaluator::manifest::JsonFormat::minify(preserve_order)
@@ -282,7 +282,7 @@ impl JsonnetArrayIter {
     ) -> PyResult<Option<Bound<'py, PyAny>>> {
         let slf = &mut slf;
 
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             slf.array
                 .0
                 .get(slf.idx)
@@ -310,7 +310,7 @@ impl JsonnetFunc {
         py: Python<'py>,
         args: &Bound<'_, PyTuple>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             let args = pylist_to_jsonnet(py, args.iter())?;
 
             let out = self

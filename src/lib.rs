@@ -23,14 +23,10 @@ mod utils;
 
 use pyo3::prelude::*;
 
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    OnceLock,
-};
+use std::sync::{atomic::{AtomicBool, Ordering}, };
 use utils::value_error;
 
 pub(crate) static ENABLE_LOGGER: AtomicBool = AtomicBool::new(false);
-pub(crate) static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
 
 #[pymodule]
 mod chainql {
@@ -38,7 +34,6 @@ mod chainql {
 
     #[pymodule_init]
     fn init(_m: &Bound<'_, PyModule>) -> PyResult<()> {
-        jsonnet_tokio::init();
         Ok(())
     }
 
