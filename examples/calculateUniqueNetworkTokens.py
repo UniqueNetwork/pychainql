@@ -9,7 +9,7 @@ if len(sys.argv) != 2:
   sys.exit(1)
 
 
-chainql.enable_logs()
+# chainql.enable_logs()
 
 state = chainql.Chain(url=sys.argv[1]).latest()
 
