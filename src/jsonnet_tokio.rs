@@ -13,26 +13,45 @@
 // limitations under the License.
 
 use gag::Gag;
+use nix::sys::signal::{signal, SigHandler, Signal};
+use pyo3::PyResult;
 use std::sync::atomic::Ordering;
+use std::sync::Arc;
+use std::sync::LazyLock;
+use tokio::sync::Notify;
 use tokio::task::block_in_place;
 
-pub fn init() {
-    let runtime = tokio::runtime::Builder::new_multi_thread()
+static RUNTIME: LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
+    tokio::runtime::Builder::new_multi_thread()
         .thread_name("chainql-tokio-runtime")
         .enable_all()
         .build()
-        .unwrap();
+        .unwrap()
+});
 
-    crate::RUNTIME.set(runtime).unwrap()
-}
+static CANCELLATION_NOTIFIER: LazyLock<Arc<Notify>> = LazyLock::new(|| Arc::new(Notify::new()));
 
+#[track_caller]
 #[inline(always)]
-pub fn execute_jsonnet<F: FnOnce() -> T, T>(f: F) -> T {
+pub fn execute_jsonnet<F, T>(f: F) -> F::Output
+where
+    F: FnOnce(Arc<Notify>) -> PyResult<T>,
+{
+    let pyhandler = unsafe { signal(Signal::SIGINT, SigHandler::Handler(ctrl_c_handler)).unwrap() };
+
+    // TODO: Remove when chainql_core migrates to tracings
     let use_logger = crate::ENABLE_LOGGER.load(Ordering::SeqCst);
     let _gag = (!use_logger).then(|| (Gag::stdout().unwrap(), Gag::stderr().unwrap()));
 
-    let runtime = crate::RUNTIME.get().unwrap();
-    let _enter_guard = runtime.enter();
+    let _enter_guard = RUNTIME.enter();
+    let result = block_in_place(|| f(Arc::clone(&CANCELLATION_NOTIFIER)));
+    
+    // TODO: Defer this
+    unsafe { signal(Signal::SIGINT, pyhandler).unwrap() };
 
-    block_in_place(f)
+    result
+}
+
+extern "C" fn ctrl_c_handler(_signal: core::ffi::c_int) {
+    CANCELLATION_NOTIFIER.notify_last();
 }

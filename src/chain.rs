@@ -80,15 +80,15 @@ impl Chain {
     #[new]
     #[pyo3(signature = (url, opts=None))]
     pub fn new(url: String, opts: Option<ChainOpts>) -> PyResult<Self> {
-        execute_jsonnet(|| {
-            chainql_core::builtin_chain(url, opts.map(Into::into))
+        execute_jsonnet(|cancel| {
+            chainql_core::chain(url, opts.map(Into::into), cancel)
                 .map(|chain| Self(JsonnetObject(chain)))
                 .map_err(|err| PyBaseException::new_err(err.to_string()))
         })
     }
 
     pub fn latest(&self) -> PyResult<JsonnetObject> {
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             let chain = &self.0 .0;
 
             let latest = chain
@@ -103,7 +103,7 @@ impl Chain {
     }
 
     pub fn block(&self, block: u32) -> PyResult<JsonnetObject> {
-        execute_jsonnet(|| {
+        execute_jsonnet(|_| {
             let chain = &self.0 .0;
 
             let block_func = chain
@@ -131,7 +131,7 @@ pub fn dump(
     data: BTreeMap<Vec<u8>, Vec<u8>>,
     opts: Option<ChainOpts>,
 ) -> PyResult<JsonnetObject> {
-    execute_jsonnet(|| {
+    execute_jsonnet(|_| {
         let meta = match meta {
             Either::Left(l) => jrsonnet_evaluator::typed::Either2::A(l.0),
             Either::Right(r) => jrsonnet_evaluator::typed::Either2::B(Hex(r)),

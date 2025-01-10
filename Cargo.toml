@@ -12,13 +12,12 @@ chainql-core = { git = "https://github.com/UniqueNetwork/chainql.git", branch = 
 either = "1.13.0"
 gag = "1.0.0"
 jrsonnet-evaluator = { version = "0.5.0-pre95" }
+nix = { version = "0.29.0", features = ["signal"] }
 num-bigint = "0.4.6"
+pyo3 = { version = "0.23.3", features = ["abi3-py310", "extension-module", "num-bigint", "either"] }
 ss58-registry = "1.34.0"
 tokio = { version = "1.41.1", default-features = false, features = ["rt", "rt-multi-thread"] }
 
-[dependencies.pyo3]
-version = "0.23.1"
-features = ["abi3-py310", "extension-module", "num-bigint", "either"]
 
 [profile.release]
 opt-level = 3
