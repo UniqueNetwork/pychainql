@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::error::Error;
-use pyo3::{exceptions::{PyRuntimeError, PyTypeError, PyValueError}, prelude::*, ToPyErr};
 use pyo3::exceptions::PyKeyboardInterrupt;
+use pyo3::{
+    exceptions::{PyRuntimeError, PyTypeError, PyValueError},
+    prelude::*,
+};
 
 #[inline(always)]
 pub fn type_error(py: Python<'_>, description: impl ToString, cause: PyErr) -> PyErr {

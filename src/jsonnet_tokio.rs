@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use gag::Gag;
 use nix::sys::signal::{signal, SigHandler, Signal};
 use pyo3::PyResult;
-use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::sync::LazyLock;
 use tokio::sync::Notify;
-use tokio::task::block_in_place;
 
 static RUNTIME: LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
     tokio::runtime::Builder::new_multi_thread()
@@ -31,27 +28,33 @@ static RUNTIME: LazyLock<tokio::runtime::Runtime> = LazyLock::new(|| {
 
 static CANCELLATION_NOTIFIER: LazyLock<Arc<Notify>> = LazyLock::new(|| Arc::new(Notify::new()));
 
+struct CancellationGuard(SigHandler);
+
+impl CancellationGuard {
+    fn setup() -> Self {
+        Self(unsafe { signal(Signal::SIGINT, SigHandler::Handler(Self::ctrl_c_handler)).unwrap() })
+    }
+
+    extern "C" fn ctrl_c_handler(_signal: core::ffi::c_int) {
+        CANCELLATION_NOTIFIER.notify_one();
+    }
+}
+
+impl Drop for CancellationGuard {
+    fn drop(&mut self) {
+        unsafe { signal(Signal::SIGINT, self.0).unwrap() };
+    }
+}
+
+#[inline]
 #[track_caller]
-#[inline(always)]
 pub fn execute_jsonnet<F, T>(f: F) -> F::Output
 where
     F: FnOnce(Arc<Notify>) -> PyResult<T>,
 {
-    let pyhandler = unsafe { signal(Signal::SIGINT, SigHandler::Handler(ctrl_c_handler)).unwrap() };
-
-    // TODO: Remove when chainql_core migrates to tracings
-    let use_logger = crate::ENABLE_LOGGER.load(Ordering::SeqCst);
-    let _gag = (!use_logger).then(|| (Gag::stdout().unwrap(), Gag::stderr().unwrap()));
-
+    let _ctrl_c = CancellationGuard::setup();
     let _enter_guard = RUNTIME.enter();
-    let result = block_in_place(|| f(Arc::clone(&CANCELLATION_NOTIFIER)));
-    
-    // TODO: Defer this
-    unsafe { signal(Signal::SIGINT, pyhandler).unwrap() };
 
-    result
-}
-
-extern "C" fn ctrl_c_handler(_signal: core::ffi::c_int) {
-    CANCELLATION_NOTIFIER.notify_last();
+    let cancel = Arc::clone(&CANCELLATION_NOTIFIER);
+    f(cancel)
 }
