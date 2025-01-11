@@ -9,6 +9,9 @@ classifiers = []
 dynamic = ["version"]
 dependencies = ["patchelf; platform_system == 'Linux'"]
 
+[project.urls]
+Homepage = "https://github.com/UniqueNetwork/pychainql"
+
 [tool.maturin]
 python-source = "stubs"
 features = ["pyo3/extension-module"]

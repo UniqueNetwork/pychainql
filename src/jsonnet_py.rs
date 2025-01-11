@@ -17,6 +17,8 @@ use crate::{
     utils::type_error,
 };
 use jrsonnet_evaluator as jsonnet;
+use jrsonnet_evaluator::val::NumValue;
+use pyo3::exceptions::PyValueError;
 use pyo3::{
     exceptions::PyTypeError,
     prelude::*,
@@ -48,6 +50,8 @@ pub fn py_to_jsonnet(py: Python<'_>, arg: Bound<'_, PyAny>) -> PyResult<jsonnet:
     } else if let Ok(s) = arg.extract::<&str>() {
         Ok(jsonnet::Val::Str(s.into()))
     } else if let Ok(num) = arg.extract::<f64>() {
+        let num = NumValue::new(num)
+            .ok_or_else(|| PyValueError::new_err("number can not be an infinite or NaN value"))?;
         Ok(jsonnet::Val::Num(num))
     } else if let Ok(num) = arg.extract::<num_bigint::BigInt>() {
         Ok(jsonnet::Val::BigInt(Box::new(num)))
