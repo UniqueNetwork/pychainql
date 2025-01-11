@@ -22,29 +22,21 @@ mod ss58_registry;
 mod utils;
 
 use pyo3::prelude::*;
-
-use std::sync::{atomic::{AtomicBool, Ordering}, };
 use utils::value_error;
-
-pub(crate) static ENABLE_LOGGER: AtomicBool = AtomicBool::new(false);
 
 #[pymodule]
 mod chainql {
     use super::*;
 
     #[pymodule_init]
-    fn init(_m: &Bound<'_, PyModule>) -> PyResult<()> {
+    fn init(m: &Bound<'_, PyModule>) -> PyResult<()> {
+        pyo3_log::Logger::new(m.py(), pyo3_log::Caching::Nothing)?
+            .filter_target("soketto".to_owned(), log::LevelFilter::Off)
+            .filter_target("rustls".to_owned(), log::LevelFilter::Off)
+            .install()
+            .unwrap();
+
         Ok(())
-    }
-
-    #[pyfunction]
-    fn enable_logs() {
-        ENABLE_LOGGER.store(true, Ordering::SeqCst);
-    }
-
-    #[pyfunction]
-    fn disable_logs() {
-        ENABLE_LOGGER.store(false, Ordering::SeqCst);
     }
 
     #[pymodule_export]

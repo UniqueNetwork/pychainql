@@ -8,13 +8,15 @@ name = "chainql"
 crate-type = ["cdylib"]
 
 [dependencies]
-chainql-core = { git = "https://github.com/UniqueNetwork/chainql.git", branch = "pub-builtin" }
+chainql-core = { git = "https://github.com/UniqueNetwork/chainql.git", branch = "pub-builtin", default-features = false, features = ["log"] }
 either = "1.13.0"
-gag = "1.0.0"
 jrsonnet-evaluator = { version = "0.5.0-pre95" }
+log = "0.4.24"
 nix = { version = "0.29.0", features = ["signal"] }
 num-bigint = "0.4.6"
 pyo3 = { version = "0.23.3", features = ["abi3-py310", "extension-module", "num-bigint", "either"] }
+pyo3-log = "0.12.1"
+simple_logger = "5.0.0"
 ss58-registry = "1.34.0"
 tokio = { version = "1.41.1", default-features = false, features = ["rt", "rt-multi-thread"] }
 

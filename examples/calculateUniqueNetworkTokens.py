@@ -3,13 +3,15 @@ from pprint import pprint
 import chainql
 import operator
 import sys
+import logging
+
+FORMAT = '%(levelname)s %(name)s %(asctime)-15s %(message)s'
+logging.basicConfig(format=FORMAT)
+logging.getLogger().setLevel(logging.INFO)
 
 if len(sys.argv) != 2:
   print("Usage: unique.py [url]")
   sys.exit(1)
-
-
-# chainql.enable_logs()
 
 state = chainql.Chain(url=sys.argv[1]).latest()
 
